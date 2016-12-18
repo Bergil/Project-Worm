@@ -1,0 +1,59 @@
+Mesh Mesh::Sphere(const glm::vec3& center,
+				  float radius,
+				  size_t precision)
+{
+	Mesh C;
+	
+	glm::vec3 u = glm::vec3(1.f, 0.f, 0.f),
+	          v = glm::vec3(0.f, 0.f, 1.f),
+			  w = glm::vec3(0.f, 1.f, 0.f);
+		
+	float incrRot = pi()/precision;
+	float subIncrRot = 2*pi()/precision;
+	
+	for(size_t i = 1; i < precision; ++i)
+	{
+		glm::vec3 subCenter = std::cos(incrRot*i)*w;
+		float subRadius = std::sin(incrRot*i);
+		for(size_t j = 0; j < precision; ++j)
+		{
+			glm::vec3 tmp = subRadius*(std::cos(subIncrRot*j)*u + std::sin(subIncrRot*j)*v) + subCenter;
+			C._vertices.push_back(tmp);
+			C._normals.push_back(glm::normalize(tmp - center));
+		}
+	}
+	
+	C._vertices.push_back(center + w*radius);
+	C._normals.push_back(w);
+	C._vertices.push_back(center - w*radius);
+	C._normals.push_back(-w);
+	
+	for(size_t i = 0; i < precision - 2; ++i)
+	{
+		for(size_t j = 0; j < precision; ++j)
+		{
+			C._triangles.push_back(Triangle(i*precision + j, i*precision + j,
+								   i*precision + ((j + 1) % precision), i*precision + ((j + 1) % precision),
+								   (i + 1)*precision + j, (i + 1)*precision + j));
+								   
+			C._triangles.push_back(Triangle(i*precision + ((j + 1) % precision), i*precision + ((j + 1) % precision),
+								   (i + 1)*precision + ((j + 1) % precision), (i + 1)*precision + ((j + 1) % precision),
+								   (i + 1)*precision + j, (i + 1)*precision + j)); 
+								   
+		}
+	}
+	
+	for(size_t i = 0; i < precision ; ++i)
+	{
+		C._triangles.push_back(Triangle(precision*(precision - 1), precision*(precision - 1),
+										(i + 1) % precision, (i + 1) % precision,
+										i, i));
+							
+		C._triangles.push_back(Triangle(precision*(precision - 1) + 1, precision*(precision - 1) + 1,
+										precision*(precision - 2) + i, precision*(precision - 2) + i,
+										precision*(precision - 2) + ((i + 1) % precision), precision*(precision - 2) + ((i + 1) % precision)));
+		
+	}
+	
+	return C;
+}
