@@ -22,7 +22,7 @@ int main()
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
-	Mesh C = Mesh::Sphere(glm::vec3(0.0,0.0,0.0), 5.0f, 20);
+	Mesh C = Mesh::Sphere(glm::vec3(0.0,0.0,0.0), 10.0f, 50);
 		// This will identify our vertex buffer
 	GLuint vertexbuffer;
 	GLuint trianglebuffer;
@@ -38,9 +38,12 @@ int main()
 	sf::Clock clock;
 	sf::Shader shader;
 	glm::mat4 matriceCam = glm::lookAt(glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-	glm::mat4 matricePerspective = glm::perspective(3.14159f/4, static_cast<float>(window.getSize().x/window.getSize().y), 0.1f, 100.0f);
+	glm::mat4 matricePerspective = glm::perspective(3.14159f/4, static_cast<float>(window.getSize().x/window.getSize().y), 0.1f, 1000.0f);
 	shader.loadFromFile("../shaders/vertex/vertexshader.glsl", "../shaders/fragment/fragmentshader.glsl");
-	
+	float distance = 40.0;
+	float angleX = 0.0;
+	float angleY = 0.0;
+	glm::vec3 camera;
 	
     // on fait tourner le programme jusqu'à ce que la fenêtre soit fermée
     while (window.isOpen())
@@ -62,7 +65,32 @@ int main()
 			std::cerr<< "Error"<<std::endl;
 			return -1;
 		}
-		glm::vec3 camera = glm::vec3(cos(time), 0.0, sin(time))*20.0f;
+		
+		/*if(window.pollEvent(event))
+		{
+			if (event.type == sf::Event::KeyPressed){*/
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
+					angleX += 0.1;
+				}
+				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+					angleX -= 0.1;
+				
+				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+					angleY += 0.1;
+				
+				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+					angleY -= 0.1;
+				
+				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
+					angleX = 0.0;
+					angleY = 0.0;
+				}
+			//}
+		//}
+
+		camera = glm::vec3(distance, angleY, angleX);
+
+		//glm::vec3 camera = glm::vec3(0.0, cos(time), sin(time))*40.0f;
 		matriceCam = glm::lookAt(camera, glm::normalize(glm::vec3(0.0, 0.0, 0.0)-camera), glm::vec3(0.0, 1.0, 0.0));
 		glUniformMatrix4fv(glGetUniformLocation(shader.getNativeHandle() ,  "perspective"), 1, false, glm::value_ptr(matricePerspective));
 		glUniformMatrix4fv(glGetUniformLocation(shader.getNativeHandle() ,  "camera"), 1, false, glm::value_ptr(matriceCam));
@@ -79,7 +107,7 @@ int main()
 		   (void*)0            // array buffer offset
 		);
 		glVertexAttribPointer(
-		   1,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		   1,                 
 		   3,                  // size
 		   GL_FLOAT,           // type
 		   GL_TRUE,           // normalized?
@@ -87,7 +115,7 @@ int main()
 		   (void*)offsetof(Vertex, normale)           // array buffer offset
 		);
 		glVertexAttribPointer(
-		   2,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		   2,                 
 		   2,                  // size
 		   GL_FLOAT,           // type
 		   GL_FALSE,           // normalized?

@@ -5,7 +5,7 @@ Mesh Mesh::Sphere(const glm::vec3& center,
 				  size_t precision)
 {
 	Mesh C;
-	float pi = 3.14159;
+	float pi = 3.141592653;
 	glm::vec3 u = glm::vec3(1.f, 0.f, 0.f),
 	          v = glm::vec3(0.f, 0.f, 1.f),
 			  w = glm::vec3(0.f, 1.f, 0.f);
@@ -20,7 +20,7 @@ Mesh Mesh::Sphere(const glm::vec3& center,
 		for(size_t j = 0; j < precision; ++j)
 		{
 			glm::vec3 tmp = subRadius*(std::cos(subIncrRot*j)*u + std::sin(subIncrRot*j)*v) + subCenter;
-			C.vertices.push_back(Vertex (tmp*radius, glm::normalize(tmp - center)));
+			C.vertices.push_back(Vertex(tmp*radius, glm::normalize(tmp - center)));
 		}
 	}
 	

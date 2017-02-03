@@ -6,8 +6,7 @@ in vec3 vertexNormale;
 in vec2 vertexTexcoord;
 out vec3 normale;
 void main(){
-	vec4 tmpPosition = vec4(vertexPosition, 1);
-	gl_Position = perspective*camera*tmpPosition;
+	gl_Position = perspective*camera*vec4(vertexPosition, 1.0);
 	normale = vertexNormale;
 	
 }
