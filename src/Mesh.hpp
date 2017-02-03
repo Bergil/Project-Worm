@@ -12,4 +12,6 @@ class Mesh{
 		const std::vector<Vertex> &getVertices(){return vertices;}
 		const std::vector<Triangle> &getTriangles(){return triangles;}
 		static Mesh Sphere(const glm::vec3& center, float radius, size_t precision);
+		static Mesh Cube(float width);
+		
 };

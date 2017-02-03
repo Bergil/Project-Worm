@@ -48,3 +48,85 @@ Mesh Mesh::Sphere(const glm::vec3& center,
 	
 	return C;
 }
+
+
+ Mesh Mesh::Cube(float width){
+	float t = width/2;
+	std::array<glm::vec3,8> P{glm::vec3{-t, -t, t}, 
+							glm::vec3{t, -t, t}, 
+							glm::vec3{-t, t, t}, 
+							glm::vec3{t, t, t}, 
+							glm::vec3{-t, -t, -t}, 
+							glm::vec3{t, -t, -t}, 
+							glm::vec3{-t, t, -t}, 
+							glm::vec3{t, t, -t}};
+	Mesh C;
+	glm::vec3 x = glm::vec3(1.f, 0.f, 0.f),
+	          y = glm::vec3(0.f, 0.f, 1.f),
+			  z = glm::vec3(0.f, 1.f, 0.f);
+	//triangle 1 face z
+	C.vertices.push_back(Vertex(P[0], z));
+	C.vertices.push_back(Vertex(P[1], z));
+	C.vertices.push_back(Vertex(P[2], z));
+	
+	//triangle 2 face z
+	C.vertices.push_back(Vertex(P[1], z));
+	C.vertices.push_back(Vertex(P[3], z));
+	C.vertices.push_back(Vertex(P[2], z));
+	
+		//triangle 1 face -z
+	C.vertices.push_back(Vertex(P[5], -z));
+	C.vertices.push_back(Vertex(P[4], -z));
+	C.vertices.push_back(Vertex(P[6], -z));
+	
+		//triangle 2 face -z
+	C.vertices.push_back(Vertex(P[5], -z));
+	C.vertices.push_back(Vertex(P[6], -z));
+	C.vertices.push_back(Vertex(P[7], -z));
+	
+		//triangle 1 face x
+	C.vertices.push_back(Vertex(P[3], x));
+	C.vertices.push_back(Vertex(P[1], x));
+	C.vertices.push_back(Vertex(P[7], x));
+	
+		//triangle 2 face x
+	C.vertices.push_back(Vertex(P[1], x));
+	C.vertices.push_back(Vertex(P[5], x));
+	C.vertices.push_back(Vertex(P[7], x));
+	
+		//triangle 1 face -x
+	C.vertices.push_back(Vertex(P[4], -x));
+	C.vertices.push_back(Vertex(P[0], -x));
+	C.vertices.push_back(Vertex(P[6], -x));
+	
+		//triangle 2 face -x
+	C.vertices.push_back(Vertex(P[6], -x));
+	C.vertices.push_back(Vertex(P[0], -x));
+	C.vertices.push_back(Vertex(P[2], -x));
+	
+	//triangle 1 face y
+	C.vertices.push_back(Vertex(P[6], y));
+	C.vertices.push_back(Vertex(P[2], y));
+	C.vertices.push_back(Vertex(P[3], y));	
+	
+		//triangle 2 face y
+	C.vertices.push_back(Vertex(P[6], y));
+	C.vertices.push_back(Vertex(P[3], y));
+	C.vertices.push_back(Vertex(P[7], y));
+	
+		//triangle 1 face -y
+	C.vertices.push_back(Vertex(P[0], -y));
+	C.vertices.push_back(Vertex(P[4], -y));
+	C.vertices.push_back(Vertex(P[1], -y));
+	
+		//triangle 2 face -y
+	C.vertices.push_back(Vertex(P[1], -y));
+	C.vertices.push_back(Vertex(P[4], -y));
+	C.vertices.push_back(Vertex(P[5], -y));
+	
+	for (int i = 0; i < 12; ++i){
+		C.triangles.push_back(Triangle(i*3, i*3+1, i*3+2));
+	}
+	
+	return C;
+}

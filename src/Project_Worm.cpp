@@ -11,18 +11,34 @@
 //Class Mesh ac ensemble Vertex et ensemble de triangles (3 indice de vertex)
 //GLDrawArrayElement avec autre buffer qui contient tt les buffers.
 
+
+glm::vec3 SphereToCart(float dist, float theta, float phi){
+	float sinP = sin(phi);
+	float cosT = cos(theta);
+	return dist*glm::vec3(sinP*cosT, sinP*sin(theta), cos(phi));
+}
+
+
 int main()
 {
-    sf::Window window(sf::VideoMode(800, 600), "Snake 3D");
+	sf::ContextSettings parameters;
+	parameters.antialiasingLevel = 8;
+    parameters.majorVersion = 4;
+    parameters.minorVersion = 3;
+	parameters.depthBits = 24;
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Snake 3D",sf::Style::Default, parameters);
 	if (gl3wInit()) {
                 fprintf(stderr, "failed to initialize OpenGL\n");
                 return -1;
     }
 	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
-	Mesh C = Mesh::Sphere(glm::vec3(0.0,0.0,0.0), 10.0f, 50);
+	//Mesh C = Mesh::Sphere(glm::vec3(0.0,0.0,0.0), 10.0f, 50);
+	Mesh C = Mesh::Cube(10.0f);
+	
 		// This will identify our vertex buffer
 	GLuint vertexbuffer;
 	GLuint trianglebuffer;
@@ -38,7 +54,7 @@ int main()
 	sf::Clock clock;
 	sf::Shader shader;
 	glm::mat4 matriceCam = glm::lookAt(glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-	glm::mat4 matricePerspective = glm::perspective(3.14159f/4, static_cast<float>(window.getSize().x/window.getSize().y), 0.1f, 1000.0f);
+	glm::mat4 matricePerspective = glm::perspective(3.14159f/4, static_cast<float>(window.getSize().x)/window.getSize().y, 0.1f, 100.0f);
 	shader.loadFromFile("../shaders/vertex/vertexshader.glsl", "../shaders/fragment/fragmentshader.glsl");
 	float distance = 40.0;
 	float angleX = 0.0;
@@ -51,13 +67,14 @@ int main()
         // on inspecte tous les évènements de la fenêtre qui ont été émis depuis la précédente itération
         sf::Event event;
 		float time = clock.getElapsedTime().asSeconds();
+		clock.restart();
         while (window.pollEvent(event))
         {
             // évènement "fermeture demandée" : on ferme la fenêtre
             if (event.type == sf::Event::Closed)
                 window.close();
         }
-		glClearColor(0.0,0.0,0.0,0.0);
+		glClearColor(0.0,0.0,0.0,1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		sf::Shader::bind(&shader);
 		auto location = glGetUniformLocation(shader.getNativeHandle() ,  "perspective");
@@ -66,32 +83,26 @@ int main()
 			return -1;
 		}
 		
-		/*if(window.pollEvent(event))
-		{
-			if (event.type == sf::Event::KeyPressed){*/
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
-					angleX += 0.1;
-				}
-				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-					angleX -= 0.1;
-				
-				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-					angleY += 0.1;
-				
-				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-					angleY -= 0.1;
-				
-				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
-					angleX = 0.0;
-					angleY = 0.0;
-				}
-			//}
-		//}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
+			angleX += time; //same step for every frame
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+			angleX -= time;
+		
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+			angleY += time;
+		
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+			angleY -= time;
+		
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
+			angleX = 0.0;
+			angleY = 0.0;
+		}
+		
+		camera = SphereToCart(distance, angleY, angleX);
 
-		camera = glm::vec3(distance, angleY, angleX);
-
-		//glm::vec3 camera = glm::vec3(0.0, cos(time), sin(time))*40.0f;
-		matriceCam = glm::lookAt(camera, glm::normalize(glm::vec3(0.0, 0.0, 0.0)-camera), glm::vec3(0.0, 1.0, 0.0));
+		matriceCam = glm::lookAt(camera, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 		glUniformMatrix4fv(glGetUniformLocation(shader.getNativeHandle() ,  "perspective"), 1, false, glm::value_ptr(matricePerspective));
 		glUniformMatrix4fv(glGetUniformLocation(shader.getNativeHandle() ,  "camera"), 1, false, glm::value_ptr(matriceCam));
 		glEnableVertexAttribArray(0);
