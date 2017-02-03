@@ -1,5 +1,68 @@
 #include "Mesh.hpp"
 
+void Mesh::init(){
+	
+	glGenVertexArrays(1, &buffer.VertexArrayID);
+	glBindVertexArray(buffer.VertexArrayID);
+	
+	// Generate 1 buffer, put the resulting identifier in vertexbuffer
+	glGenBuffers(1, &buffer.vertexbuffer);
+	glGenBuffers(1, &buffer.trianglebuffer);
+	// The following commands will talk about our 'vertexbuffer' buffer
+	glBindBuffer(GL_ARRAY_BUFFER, buffer.vertexbuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer.trianglebuffer);
+	
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer( // Describe struct vertex
+	   0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+	   3,                  // size
+	   GL_FLOAT,           // type
+	   GL_FALSE,           // normalized?
+	   sizeof(Vertex),                  // stride
+	   (void*)0            // array buffer offset
+	);
+	glVertexAttribPointer(
+	   1,                 
+	   3,                  // size
+	   GL_FLOAT,           // type
+	   GL_TRUE,           // normalized?
+	   sizeof(Vertex),                  // stride
+	   (void*)offsetof(Vertex, normale)           // array buffer offset
+	);
+	glVertexAttribPointer(
+	   2,                 
+	   2,                  // size
+	   GL_FLOAT,           // type
+	   GL_FALSE,           // normalized?
+	   sizeof(Vertex),                  // stride
+	   (void*)offsetof(Vertex, texcoord)             // array buffer offset
+	);
+	glBindVertexArray(0);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+}
+
+void Mesh::upload(){
+	glBindVertexArray(buffer.VertexArrayID);
+	// Give our vertices to OpenGL.
+	glBufferData(GL_ARRAY_BUFFER, getVertices().size()*sizeof(Vertex), &getVertices()[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, getTriangles().size()*sizeof(Triangle), &getTriangles()[0], GL_STATIC_DRAW);
+	glBindVertexArray(0);
+}
+
+
+void Mesh::draw(){
+	glBindVertexArray(buffer.VertexArrayID);
+	glDrawElements(GL_TRIANGLES, getTriangles().size()*3,  GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
+
 Mesh Mesh::Sphere(const glm::vec3& center,
 				  float radius,
 				  size_t precision)

@@ -4,7 +4,8 @@ out vec4 colorOut;
 
 void main(){
 
-	colorOut = vec4(position, 1.0);
-	//colorOut = vec4(1, 0, 0, 1) * min(dot(normale, vec3(1.0,0.0,0.0)), 0.5);
+	//colorOut = vec4(position, 1.0);
+	colorOut.rgb = vec3(1, 0, 0) * clamp(dot(normale, vec3(1.0,0.0,0.0)), 0.2, 1);
+	colorOut.a = 1.0;
 	
 }
