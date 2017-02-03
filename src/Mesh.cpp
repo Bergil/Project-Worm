@@ -11,10 +11,10 @@ void Mesh::init(){
 	// The following commands will talk about our 'vertexbuffer' buffer
 	glBindBuffer(GL_ARRAY_BUFFER, buffer.vertexbuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer.trianglebuffer);
-	
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
+	
 	glVertexAttribPointer( // Describe struct vertex
 	   0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
 	   3,                  // size
@@ -48,11 +48,13 @@ void Mesh::init(){
 }
 
 void Mesh::upload(){
-	glBindVertexArray(buffer.VertexArrayID);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer.vertexbuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer.trianglebuffer);
 	// Give our vertices to OpenGL.
 	glBufferData(GL_ARRAY_BUFFER, getVertices().size()*sizeof(Vertex), &getVertices()[0], GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, getTriangles().size()*sizeof(Triangle), &getTriangles()[0], GL_STATIC_DRAW);
-	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
 }
 
 
