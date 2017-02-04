@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.8.11)
 project (Project_Worm)
 
 set(CMAKE_PREFIX_PATH deps/SFML-2.4.1)
-set(SRCFILES src/Project_Worm.cpp src/Mesh.cpp src/Vertex.cpp)
+set(SRCFILES src/Project_Worm.cpp src/Mesh.cpp src/Vertex.cpp src/MeshView.cpp)
 set(EXTFILES src/gl3w.c)
 
 list(APPEND CMAKE_CXX_FLAGS "-std=c++17 -Wall -Wfatal-errors")

@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp> 
 #include <glm/gtc/type_ptr.hpp>
 #include <Mesh.hpp>
+#include <MeshView.hpp>
 
 //Class Vertex avec position, Normal, etc
 //Class Mesh ac ensemble Vertex et ensemble de triangles (3 indice de vertex)
@@ -47,6 +48,9 @@ int main()
 	Mesh C = Mesh::Sphere(glm::vec3(0.0,0.0,0.0), 10.0f, 50);
 	C.init();
 	C.upload();
+	std::vector<MeshView>vecMeshView;
+	vecMeshView.emplace_back(C);
+	vecMeshView.emplace_back(C, glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(10.0, 0.0, 0.0)), glm::vec3(1.0)));
 	
 	sf::Clock clock;
 	sf::Shader shader;
@@ -108,8 +112,9 @@ int main()
 		glUniformMatrix4fv(glGetUniformLocation(shader.getNativeHandle() ,  "camera"), 1, false, glm::value_ptr(matriceCam));
 		
 		// Draw the triangle !
-		C.draw();
-
+		//C.draw();
+		for(const auto &i : vecMeshView)
+			i.draw(shader);
 		window.display();
     }
 

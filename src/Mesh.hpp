@@ -1,3 +1,4 @@
+#pragma once
 #include <Vertex.hpp>
 #include <Triangle.hpp>
 #include <vector>
@@ -16,7 +17,7 @@ class Mesh{
 				
 		void init(); //initialize OpenGL buffers
 		void upload(); //upload Mesh on GPU
-		void draw();
+		void draw()const;
 		
 		const std::vector<Vertex> &getVertices(){return vertices;}
 		const std::vector<Triangle> &getTriangles(){return triangles;}

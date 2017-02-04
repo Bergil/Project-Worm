@@ -51,16 +51,16 @@ void Mesh::upload(){
 	glBindBuffer(GL_ARRAY_BUFFER, buffer.vertexbuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer.trianglebuffer);
 	// Give our vertices to OpenGL.
-	glBufferData(GL_ARRAY_BUFFER, getVertices().size()*sizeof(Vertex), &getVertices()[0], GL_STATIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, getTriangles().size()*sizeof(Triangle), &getTriangles()[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangles.size()*sizeof(Triangle), &triangles[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
 }
 
 
-void Mesh::draw(){
+void Mesh::draw()const{
 	glBindVertexArray(buffer.VertexArrayID);
-	glDrawElements(GL_TRIANGLES, getTriangles().size()*3,  GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, triangles.size()*3,  GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
