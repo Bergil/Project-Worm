@@ -8,8 +8,8 @@ out vec4 colorOut;
 
 void main(){
 
-	//colorOut = vec4(position, 1.0);
-	colorOut.rgb = color.rgb * clamp(dot(normale, lightDir), 0.2, 1.0);
+	colorOut.rgb = position;
+	//colorOut.rgb = color.rgb * clamp(dot(normale, lightDir), 0.2, 1.0);
 	colorOut.a = color.a;
 	
 }
