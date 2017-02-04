@@ -110,7 +110,7 @@ int main()
 		//C.draw();
 		glUniform3fv(glGetUniformLocation(shader.getNativeHandle() ,  "lightDir"), 1, glm::value_ptr(lightDir));
 		for (const auto &i : vecMeshView)
-			i.draw(shader, rotate);
+			i.draw(shader, worldRot);
 		
 		//Apply Rotation to Light
 		glUniform3fv(glGetUniformLocation(shader.getNativeHandle() ,  "lightDir"), 1, glm::value_ptr(worldRot * glm::vec4(lightDir, 1.0)));
