@@ -54,6 +54,7 @@ int main()
 	Worm worm = Worm(C);
 	std::vector<MeshView>vecMeshView;
 	vecMeshView.emplace_back(C);
+	vecMeshView.emplace_back(C, glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(rayonMonde + 0.05, 0, 0)), glm::vec3(0.05)));
 	vecMeshView[0].color = glm::vec4(0.0, 0.0, 1.0, 1.0);
 	glm::vec3 lightDir(1.0, 1.0, 0.0);
 	sf::Clock clock;
@@ -62,10 +63,10 @@ int main()
 	glm::mat4 matricePerspective = glm::perspective(3.14159f/4, static_cast<float>(window.getSize().x)/window.getSize().y, 0.1f, 100.0f);
 	shader.loadFromFile("../shaders/vertex/vertexshader.glsl", "../shaders/fragment/fragmentshader.glsl");
 	float distanceCam = 40.0;
-	float angleX = 0.0;
-	float angleY = 0.0;
-	glm::vec3 camera(0.0,0.0,distanceCam);
-	glm::quat quatMonde;
+	glm::vec3 camera(0.0, 0.0, distanceCam);
+	glm::mat4 worldRot;
+	float speed = 1.0;
+	float steering_speed = 2.0;
 	
     // on fait tourner le programme jusqu'à ce que la fenêtre soit fermée
     while (window.isOpen())
@@ -76,8 +77,8 @@ int main()
 		clock.restart();
         while (window.pollEvent(event))
         {
-            // évènement "fermeture demandée" : on ferme la fenêtre
-            if (event.type == sf::Event::Closed){
+            // événement "fermeture demandée" : on ferme la fenêtre
+            if (event.type == sf::Event::Closed) {
                 window.close();
 				return 0;
 			}
@@ -86,30 +87,20 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		sf::Shader::bind(&shader);
 		auto location = glGetUniformLocation(shader.getNativeHandle() ,  "perspective");
-		if (location < 0){
-			std::cerr<< "Error"<<std::endl;
+		if (location < 0) {
+			std::cerr << "Error" << std::endl;
 			return -1;
 		}
 		
-		glm::quat quatMX(sin(time), 0.0, 0.0, cos(time)), quatMY(0.0, sin(time), 0.0, cos(time)), quatMZ(0.0, 0.0, sin(time), cos(time));
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
-			quatMonde = quatMX*quatMonde; //same step for every frame
-		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+			worldRot = glm::rotate(worldRot, steering_speed * -time, glm::vec3(glm::inverse(worldRot) * glm::vec4(0.0, 0.0, 1.0, 1.0)));
+		
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-			angleX += time*1;
+			worldRot = glm::rotate(worldRot, steering_speed * time, glm::vec3(glm::inverse(worldRot) * glm::vec4(0.0, 0.0, 1.0, 1.0)));
 		
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-			angleY -= time*1;
-		
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-			angleY += time*1;
-		
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
-			angleX = 0.0;
-			angleY = 0.0;
-		}
+		//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+			worldRot = glm::rotate(worldRot, speed * time, glm::vec3(glm::inverse(worldRot) * glm::vec4(1.0, 0.0, 0.0, 1.0)));
 
-		glm::mat4 rotate = glm::mat4_cast(quatMonde);
 		matriceCam = glm::lookAt(camera, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 		
 		glUniformMatrix4fv(glGetUniformLocation(shader.getNativeHandle() ,  "perspective"), 1, false, glm::value_ptr(matricePerspective));
@@ -122,7 +113,7 @@ int main()
 			i.draw(shader, rotate);
 		
 		//Apply Rotation to Light
-		glUniform3fv(glGetUniformLocation(shader.getNativeHandle() ,  "lightDir"), 1, glm::value_ptr(rotate*glm::vec4(lightDir, 1.0)));
+		glUniform3fv(glGetUniformLocation(shader.getNativeHandle() ,  "lightDir"), 1, glm::value_ptr(worldRot * glm::vec4(lightDir, 1.0)));
 		for(const auto &i : worm.body)
 			i.draw(shader);
 		window.display();
