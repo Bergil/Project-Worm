@@ -2,8 +2,8 @@
 cmake_minimum_required (VERSION 2.8.11)
 project (Project_Worm)
 
-set(SFML_ROOT "deps/glm" CACHE FILEPATH "GLM root path")
-set(GLM_ROOT "deps/SFML-2.4.1" CACHE FILEPATH "SFML root path")
+set(GLM_ROOT "deps/glm" CACHE FILEPATH "GLM root path")
+set(SFML_ROOT "deps/SFML-2.4.1" CACHE FILEPATH "SFML root path")
 
 set(SRCFILES src/Project_Worm.cpp src/Mesh.cpp src/Vertex.cpp src/MeshView.cpp)
 set(EXTFILES src/gl3w.c)

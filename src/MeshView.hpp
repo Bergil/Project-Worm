@@ -13,6 +13,8 @@ class MeshView{
 			matriceModel(v){
 		}
 		void draw(const sf::Shader &s) const;
+		void draw(const sf::Shader &s, const glm::mat4 &mat)const;
+		glm::vec4 color;
 		glm::mat4 matriceModel;
 		
 	

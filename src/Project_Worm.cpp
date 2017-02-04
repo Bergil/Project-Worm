@@ -5,8 +5,10 @@
 #include <SFML/Window.hpp>
 #include <glm/gtc/matrix_transform.hpp> 
 #include <glm/gtc/type_ptr.hpp>
-#include <Mesh.hpp>
-#include <MeshView.hpp>
+#include <glm/gtc/quaternion.hpp> 
+#include <glm/gtx/quaternion.hpp>
+#include "MeshView.hpp"
+#include "Worm.hpp"
 
 //Class Vertex avec position, Normal, etc
 //Class Mesh ac ensemble Vertex et ensemble de triangles (3 indice de vertex)
@@ -45,24 +47,25 @@ int main()
 	glDepthMask(GL_TRUE);
 	
 	//Mesh C = Mesh::Cube(10.0f);
-	Mesh C = Mesh::Sphere(glm::vec3(0.0,0.0,0.0), 10.0f, 50);
+	float rayonMonde = 10.0;
+	Mesh C = Mesh::Sphere(glm::vec3(0.0,0.0,0.0), rayonMonde, 50);
 	C.init();
 	C.upload();
+	Worm worm = Worm(C);
 	std::vector<MeshView>vecMeshView;
 	vecMeshView.emplace_back(C);
-	vecMeshView.emplace_back(C, glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(10.0, 0.0, 0.0)), glm::vec3(1.0)));
-	
+	vecMeshView[0].color = glm::vec4(0.0, 0.0, 1.0, 1.0);
+	glm::vec3 lightDir(1.0, 1.0, 0.0);
 	sf::Clock clock;
 	sf::Shader shader;
 	glm::mat4 matriceCam = glm::lookAt(glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 	glm::mat4 matricePerspective = glm::perspective(3.14159f/4, static_cast<float>(window.getSize().x)/window.getSize().y, 0.1f, 100.0f);
 	shader.loadFromFile("../shaders/vertex/vertexshader.glsl", "../shaders/fragment/fragmentshader.glsl");
-	float distance = 40.0;
+	float distanceCam = 40.0;
 	float angleX = 0.0;
 	float angleY = 0.0;
-	float minY = -90.0;
-	float maxY = 90.0;
-	glm::vec3 camera;
+	glm::vec3 camera(0.0,0.0,distanceCam);
+	glm::quat quatMonde;
 	
     // on fait tourner le programme jusqu'à ce que la fenêtre soit fermée
     while (window.isOpen())
@@ -88,32 +91,39 @@ int main()
 			return -1;
 		}
 		
+		glm::quat quatMX(sin(time), 0.0, 0.0, cos(time)), quatMY(0.0, sin(time), 0.0, cos(time)), quatMZ(0.0, 0.0, sin(time), cos(time));
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
-			angleX -= time*100; //same step for every frame
+			quatMonde = quatMX*quatMonde; //same step for every frame
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-			angleX += time*100;
+			angleX += time*1;
 		
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-			angleY -= time*100;
+			angleY -= time*1;
 		
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-			angleY += time*100;
+			angleY += time*1;
 		
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
 			angleX = 0.0;
 			angleY = 0.0;
 		}
-		angleY = clamp(angleY, maxY, minY);
-		camera = SphereToCart(distance, angleY, angleX);
 
+		glm::mat4 rotate = glm::mat4_cast(quatMonde);
 		matriceCam = glm::lookAt(camera, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+		
 		glUniformMatrix4fv(glGetUniformLocation(shader.getNativeHandle() ,  "perspective"), 1, false, glm::value_ptr(matricePerspective));
 		glUniformMatrix4fv(glGetUniformLocation(shader.getNativeHandle() ,  "camera"), 1, false, glm::value_ptr(matriceCam));
 		
 		// Draw the triangle !
 		//C.draw();
-		for(const auto &i : vecMeshView)
+		glUniform3fv(glGetUniformLocation(shader.getNativeHandle() ,  "lightDir"), 1, glm::value_ptr(lightDir));
+		for (const auto &i : vecMeshView)
+			i.draw(shader, rotate);
+		
+		//Apply Rotation to Light
+		glUniform3fv(glGetUniformLocation(shader.getNativeHandle() ,  "lightDir"), 1, glm::value_ptr(rotate*glm::vec4(lightDir, 1.0)));
+		for(const auto &i : worm.body)
 			i.draw(shader);
 		window.display();
     }
