@@ -31,3 +31,5 @@
 # Dossiers
 /build
 /deps
+
+cmake_install.cmake
